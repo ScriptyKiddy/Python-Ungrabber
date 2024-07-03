@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python Ungrabber</title>
+    <title>Webhook Tools</title>
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1869px-Python-logo-notext.svg.png" type="image/png">
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #000000, #434343);
-            height: 100vh;
+            background-color: #1a1a1a;
+            color: #FFFFFF;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #FFFFFF;
+            height: 100vh;
         }
 
         .container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
         }
 
         h1 {
@@ -30,140 +32,204 @@
             color: #FFFFFF;
         }
 
-        .custom-file-upload {
+        .input-field {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .custom-input {
+            padding: 10px;
+            border: 2px solid #000000; /* Changed to black for higher contrast */
+            border-radius: 5px;
+            background-color: #333333;
+            color: #FFFFFF;
+            font-size: 16px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .custom-button {
             display: inline-block;
             padding: 10px 20px;
             cursor: pointer;
             border: 2px solid #FFFFFF;
             border-radius: 5px;
-            background: #000000;
+            background-color: #000000;
             color: #FFFFFF;
-            transition: all 0.3s ease;
             font-size: 16px;
             font-weight: bold;
+            margin: 0 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .custom-file-upload:hover {
-            background: #000000;
-            border-color: #000000;
+        .custom-button:hover {
             transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* Adjust shadow color and size for pop-out effect */
         }
 
-        .custom-file-upload input[type="file"] {
-            display: none;
-        }
-
-        #result-container {
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            text-align: left;
-            display: none; /* Initially hidden */
-        }
-
-        #result {
-            color: #FFFFFF;
-            font-weight: bold;
-        }
-
-        #result span {
-            color: #FFFFFF;
-        }
-
-        .loading-text {
-            margin-top: 10px;
-            font-weight: bold;
-            font-size: 16px;
-            display: none; /* Initially hidden */
+        .delete-button {
+            background-color: #ff4d4d; /* Red background color for delete button */
+            box-shadow: 0 0 10px #ff4d4d; /* Red shadow for delete button */
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Python Ungrabber</h1>
-        <form id="upload-form" enctype="multipart/form-data">
-            <label for="file-upload" class="custom-file-upload">
-                Choose File
-                <input type="file" id="file-upload" name="file" class="custom-file-upload">
-            </label>
-        </form>
+    <div class="container" id="webhook-input">
+        <h1>Enter Webhook URL</h1>
+        <div class="input-field">
+            <label for="webhook-url" style="color: #FFFFFF;">Enter Webhook URL:</label><br>
+            <input type="text" id="webhook-url" class="custom-input" placeholder="https://discord.com/api/webhooks/...">
+        </div>
+        <div class="input-field">
+            <button class="custom-button" onclick="proceedToActions()">Proceed</button>
+        </div>
+    </div>
+
+    <div class="container" id="actions" style="display: none;">
+        <h1>Webhook Actions</h1>
+        <div class="input-field">
+            <textarea id="message" placeholder="Enter message to send..." class="custom-input"></textarea>
+        </div>
+        <div class="input-field">
+            <button class="custom-button" onclick="sendMessage()">Send Message</button>
+        </div>
+        <div class="input-field">
+            <button class="custom-button" onclick="spamWebhook()">Spam Webhook</button>
+            <button class="custom-button delete-button" onclick="confirmDelete()">Delete Webhook</button>
+        </div>
         <div id="result-container">
             <div id="result"></div>
         </div>
-        <div class="loading-text" id="loading-text">Decompiling...</div>
     </div>
 
     <script>
-        document.getElementById('file-upload').addEventListener('change', function() {
-            var file = this.files[0];
-            if (file) {
-                uploadFile(file);
+        function proceedToActions() {
+            var webhookUrl = document.getElementById('webhook-url').value.trim();
+            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
+                alert('Please input a valid webhook URL.');
+                return;
             }
-        });
 
-        function uploadFile(file) {
-            var formData = new FormData();
-            formData.append('file', file);
+            // Hide input section and show actions section
+            document.getElementById('webhook-input').style.display = 'none';
+            document.getElementById('actions').style.display = 'block';
+        }
+
+        function isValidWebhook(url) {
+            // Simple check for valid URL format
+            return url.startsWith('https://discord.com/api/webhooks/');
+        }
+
+        function confirmDelete() {
+            var webhookUrl = document.getElementById('webhook-url').value.trim();
+            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
+                displayError('Please input a valid webhook URL.');
+                return;
+            }
+
+            var confirmDelete = confirm('Are you sure you want to delete the webhook? This action cannot be undone.');
+            if (confirmDelete) {
+                deleteWebhook();
+            }
+        }
+
+        function spamWebhook() {
+            var webhookUrl = document.getElementById('webhook-url').value.trim();
+            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
+                displayError('Please input a valid webhook URL.');
+                return;
+            }
 
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'https://lululepu.fr/ungrabber', true);
+            xhr.open('POST', webhookUrl, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
 
-            // Show loading text and start animation
-            var loadingText = document.getElementById('loading-text');
-            loadingText.style.display = 'block'; // Display loading text
-            var dotsAnimation = setInterval(function() {
-                if (loadingText.innerHTML.length > 13) {
-                    loadingText.innerHTML = 'Decompiling.';
-                } else {
-                    loadingText.innerHTML += '.';
-                }
-            }, 500);
+            var payload = {
+                content: 'Spam message here'
+                // You can customize this payload as needed
+            };
 
             xhr.onload = function() {
-                clearInterval(dotsAnimation); // Stop animation on load
-                loadingText.style.display = 'none'; // Hide loading text
-                loadingText.innerHTML = 'Decompiling...'; // Reset text
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    displayResult(response);
+                if (xhr.status === 204) {
+                    displayResult('Successfully spammed webhook.');
                 } else {
                     displayError('Error: ' + xhr.status);
                 }
             };
 
             xhr.onerror = function() {
-                clearInterval(dotsAnimation); // Stop animation on error
-                loadingText.style.display = 'none'; // Hide loading text
-                loadingText.innerHTML = 'Decompiling...'; // Reset text
-                displayError('Error uploading file.');
+                displayError('Error sending request.');
             };
 
-            xhr.send(formData);
+            xhr.send(JSON.stringify(payload));
         }
 
-        function displayResult(response) {
+        function deleteWebhook() {
+            var webhookUrl = document.getElementById('webhook-url').value.trim();
+            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
+                displayError('Please input a valid webhook URL.');
+                return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('DELETE', webhookUrl, true);
+
+            xhr.onload = function() {
+                if (xhr.status === 204) {
+                    displayResult('Webhook deleted successfully.');
+                } else {
+                    displayError('Error: ' + xhr.status);
+                }
+            };
+
+            xhr.onerror = function() {
+                displayError('Error sending request.');
+            };
+
+            xhr.send();
+        }
+
+        function sendMessage() {
+            var webhookUrl = document.getElementById('webhook-url').value.trim();
+            var message = document.getElementById('message').value.trim();
+            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
+                displayError('Please input a valid webhook URL.');
+                return;
+            }
+
+            var payload = {
+                content: message
+                // You can customize this payload as needed
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', webhookUrl, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            xhr.onload = function() {
+                if (xhr.status === 204) {
+                    displayResult('Message sent successfully.');
+                } else {
+                    displayError('Error: ' + xhr.status);
+                }
+            };
+
+            xhr.onerror = function() {
+                displayError('Error sending request.');
+            };
+
+            xhr.send(JSON.stringify(payload));
+        }
+
+        function displayResult(message) {
             var resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = ''; // Clear previous result if any
-            
-            if (response.type) {
-                resultDiv.innerHTML += '<p>Result Type: ' + response.type + '</p>';
-            }
-
-            if (response.result != null) {
-                resultDiv.innerHTML += '<p>Result: <span>' + response.result + '</span></p>';
-            } else if (response.type == null) {
-                resultDiv.innerText = 'Not A Valid PyInstaller File Or Pyc File';
-            } else {
-                resultDiv.innerText = 'Could not find any webhook. Please try again later or contact support.';
-            }
-
+            resultDiv.innerHTML = message;
             document.getElementById('result-container').style.display = 'block';
         }
 
         function displayError(errorMessage) {
             var resultDiv = document.getElementById('result');
-            resultDiv.innerText = errorMessage;
+            resultDiv.innerHTML = errorMessage;
             document.getElementById('result-container').style.display = 'block';
         }
     </script>
