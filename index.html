@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Ungrabber</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #000000, #434343);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #FFFFFF;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #FFFFFF;
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 2px solid #FFFFFF;
+            border-radius: 5px;
+            background: #000000;
+            color: #FFFFFF;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .custom-file-upload:hover {
+            background: #000000;
+            border-color: #000000;
+            transform: scale(1.05);
+        }
+
+        .custom-file-upload input[type="file"] {
+            display: none;
+        }
+
+        #result-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            text-align: left;
+            display: none; /* Initially hidden */
+        }
+
+        #result {
+            color: #FFFFFF;
+            font-weight: bold;
+        }
+
+        #result span {
+            color: #FFFFFF;
+        }
+
+        .loading-text {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Python Ungrabber</h1>
+        <form id="upload-form" enctype="multipart/form-data">
+            <label for="file-upload" class="custom-file-upload">
+                Choose File
+                <input type="file" id="file-upload" name="file" class="custom-file-upload">
+            </label>
+        </form>
+        <div id="result-container">
+            <div id="result"></div>
+        </div>
+        <div class="loading-text" id="loading-text">Decompiling...</div>
+    </div>
+
+    <script>
+        document.getElementById('file-upload').addEventListener('change', function() {
+            var file = this.files[0];
+            if (file) {
+                uploadFile(file);
+            }
+        });
+
+        function uploadFile(file) {
+            var formData = new FormData();
+            formData.append('file', file);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://lululepu.fr/ungrabber', true);
+
+            // Show loading text and start animation
+            var loadingText = document.getElementById('loading-text');
+            loadingText.style.display = 'block'; // Display loading text
+            var dotsAnimation = setInterval(function() {
+                if (loadingText.innerHTML.length > 13) {
+                    loadingText.innerHTML = 'Decompiling.';
+                } else {
+                    loadingText.innerHTML += '.';
+                }
+            }, 500);
+
+            xhr.onload = function() {
+                clearInterval(dotsAnimation); // Stop animation on load
+                loadingText.style.display = 'none'; // Hide loading text
+                loadingText.innerHTML = 'Decompiling...'; // Reset text
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    displayResult(response);
+                } else {
+                    displayError('Error: ' + xhr.status);
+                }
+            };
+
+            xhr.onerror = function() {
+                clearInterval(dotsAnimation); // Stop animation on error
+                loadingText.style.display = 'none'; // Hide loading text
+                loadingText.innerHTML = 'Decompiling...'; // Reset text
+                displayError('Error uploading file.');
+            };
+
+            xhr.send(formData);
+        }
+
+        function displayResult(response) {
+            var resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = ''; // Clear previous result if any
+            
+            if (response.type) {
+                resultDiv.innerHTML += '<p>Result Type: ' + response.type + '</p>';
+            }
+
+            if (response.result != null) {
+                resultDiv.innerHTML += '<p>Result: <span>' + response.result + '</span></p>';
+            } else if (response.type == null) {
+                resultDiv.innerText = 'Not A Valid PyInstaller File Or Pyc File';
+            } else {
+                resultDiv.innerText = 'Could not find any webhook. Please try again later or contact support.';
+            }
+
+            document.getElementById('result-container').style.display = 'block';
+        }
+
+        function displayError(errorMessage) {
+            var resultDiv = document.getElementById('result');
+            resultDiv.innerText = errorMessage;
+            document.getElementById('result-container').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
