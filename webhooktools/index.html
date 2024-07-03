@@ -90,10 +90,7 @@
             <textarea id="message" placeholder="Enter message to send..." class="custom-input"></textarea>
         </div>
         <div class="input-field">
-            <button class="custom-button" onclick="sendMessage()">Send Message</button>
-        </div>
-        <div class="input-field">
-            <button class="custom-button" onclick="spamWebhook()">Spam Webhook</button>
+            <button id="spam-button" class="custom-button" onclick="toggleSpam()">Spam Webhook</button>
             <button class="custom-button delete-button" onclick="confirmDelete()">Delete Webhook</button>
         </div>
         <div id="result-container">
@@ -102,6 +99,9 @@
     </div>
 
     <script>
+        var spamming = false;
+        var spamInterval;
+
         function proceedToActions() {
             var webhookUrl = document.getElementById('webhook-url').value.trim();
             if (!webhookUrl || !isValidWebhook(webhookUrl)) {
@@ -119,6 +119,63 @@
             return url.startsWith('https://discord.com/api/webhooks/');
         }
 
+        function toggleSpam() {
+            if (!spamming) {
+                startSpam();
+                document.getElementById('spam-button').textContent = 'Stop Spamming';
+            } else {
+                stopSpam();
+                document.getElementById('spam-button').textContent = 'Spam Webhook';
+            }
+        }
+
+        function startSpam() {
+            spamming = true;
+            var webhookUrl = document.getElementById('webhook-url').value.trim();
+            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
+                displayError('Please input a valid webhook URL.');
+                return;
+            }
+
+            spamInterval = setInterval(function() {
+                sendSpamMessage(webhookUrl);
+            }, 1000); // Change interval as needed (e.g., every second)
+        }
+
+        function stopSpam() {
+            spamming = false;
+            clearInterval(spamInterval);
+        }
+
+        function sendSpamMessage(webhookUrl) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', webhookUrl, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            var payload = {
+                content: document.getElementById('message').value.trim() || 'Spam message here'
+                // You can customize this payload as needed
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 204) {
+                    displayResult('Message sent successfully.');
+                } else {
+                    displayError('Error: ' + xhr.status);
+                    stopSpam(); // Stop spamming on error
+                    document.getElementById('spam-button').textContent = 'Spam Webhook';
+                }
+            };
+
+            xhr.onerror = function() {
+                displayError('Error sending request.');
+                stopSpam(); // Stop spamming on error
+                document.getElementById('spam-button').textContent = 'Spam Webhook';
+            };
+
+            xhr.send(JSON.stringify(payload));
+        }
+
         function confirmDelete() {
             var webhookUrl = document.getElementById('webhook-url').value.trim();
             if (!webhookUrl || !isValidWebhook(webhookUrl)) {
@@ -130,37 +187,6 @@
             if (confirmDelete) {
                 deleteWebhook();
             }
-        }
-
-        function spamWebhook() {
-            var webhookUrl = document.getElementById('webhook-url').value.trim();
-            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
-                displayError('Please input a valid webhook URL.');
-                return;
-            }
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', webhookUrl, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-
-            var payload = {
-                content: 'Spam message here'
-                // You can customize this payload as needed
-            };
-
-            xhr.onload = function() {
-                if (xhr.status === 204) {
-                    displayResult('Successfully spammed webhook.');
-                } else {
-                    displayError('Error: ' + xhr.status);
-                }
-            };
-
-            xhr.onerror = function() {
-                displayError('Error sending request.');
-            };
-
-            xhr.send(JSON.stringify(payload));
         }
 
         function deleteWebhook() {
@@ -186,38 +212,6 @@
             };
 
             xhr.send();
-        }
-
-        function sendMessage() {
-            var webhookUrl = document.getElementById('webhook-url').value.trim();
-            var message = document.getElementById('message').value.trim();
-            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
-                displayError('Please input a valid webhook URL.');
-                return;
-            }
-
-            var payload = {
-                content: message
-                // You can customize this payload as needed
-            };
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', webhookUrl, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-
-            xhr.onload = function() {
-                if (xhr.status === 204) {
-                    displayResult('Message sent successfully.');
-                } else {
-                    displayError('Error: ' + xhr.status);
-                }
-            };
-
-            xhr.onerror = function() {
-                displayError('Error sending request.');
-            };
-
-            xhr.send(JSON.stringify(payload));
         }
 
         function displayResult(message) {
