@@ -46,6 +46,7 @@
             font-size: 16px;
             width: 100%;
             max-width: 400px;
+            box-sizing: border-box; /* Ensures padding is included in width */
         }
 
         .custom-button {
@@ -75,10 +76,9 @@
 </head>
 <body>
     <div class="container" id="webhook-input">
-        <h1>Enter Webhook URL</h1>
+        <h1>Webhook Tools</h1>
         <div class="input-field">
-            <label for="webhook-url" style="color: #FFFFFF;">Enter Webhook URL:</label><br>
-            <input type="text" id="webhook-url" class="custom-input" placeholder="https://discord.com/api/webhooks/...">
+            <input type="text" id="webhook-url" class="custom-input" placeholder="Enter Webhook URL...">
         </div>
         <div class="input-field">
             <button class="custom-button" onclick="proceedToActions()">Proceed</button>
@@ -86,7 +86,6 @@
     </div>
 
     <div class="container" id="actions" style="display: none;">
-        <h1>Webhook Actions</h1>
         <div class="input-field">
             <textarea id="message" placeholder="Enter message to send..." class="custom-input"></textarea>
         </div>
