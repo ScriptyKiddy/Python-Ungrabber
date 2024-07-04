@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhook Tools</title>
-    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1869px-Python-logo-notext.svg.png" type="image/png">
+    <title>Download Webhook Tools</title>
     <style>
         body {
-            margin: 0;
             font-family: Arial, sans-serif;
             background-color: #1a1a1a;
             color: #FFFFFF;
@@ -15,43 +13,19 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-        }
-
-        .container {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            max-width: 600px;
-            width: 90%;
+            flex-direction: column;
         }
 
         h1 {
+            font-size: 32px;
+            font-weight: bold;
             margin-bottom: 20px;
-            color: #FFFFFF;
         }
 
-        .input-field {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .custom-input {
-            padding: 10px;
-            border: 2px solid #000000; /* Changed to black for higher contrast */
-            border-radius: 5px;
-            background-color: #333333;
-            color: #FFFFFF;
-            font-size: 16px;
-            width: 100%;
-            max-width: 400px;
-            box-sizing: border-box; /* Ensures padding is included in width */
-        }
-
-        .custom-button {
+        .download-button {
             display: inline-block;
             padding: 10px 20px;
+            margin: 10px;
             cursor: pointer;
             border: 2px solid #FFFFFF;
             border-radius: 5px;
@@ -59,172 +33,37 @@
             color: #FFFFFF;
             font-size: 16px;
             font-weight: bold;
-            margin: 0 10px;
+            text-decoration: none;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .custom-button:hover {
+        .download-button:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* Adjust shadow color and size for pop-out effect */
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
         }
 
-        .delete-button {
-            background-color: #ff4d4d; /* Red background color for delete button */
-            box-shadow: 0 0 10px #ff4d4d; /* Red shadow for delete button */
+        .image-container {
+            margin-top: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 <body>
-    <div class="container" id="webhook-input">
-        <h1>Webhook Tools</h1>
-        <div class="input-field">
-            <input type="text" id="webhook-url" class="custom-input" placeholder="Enter Webhook URL...">
-        </div>
-        <div class="input-field">
-            <button class="custom-button" onclick="proceedToActions()">Proceed</button>
-        </div>
+    <h1>Download Webhook Tools</h1>
+    <a href="https://www.python.org/downloads" class="download-button">Download Python (Make Sure You Have This Installed)</a><br>
+    <a href="https://mega.nz/file/PJdxRSiY#F_sPkfs3hEhASm6hZYvr7T8fuEkBRzCkPFZ3L9nL9JE" class="download-button">Download Webhook Tools (Open Source)</a>
+
+    <div class="image-container">
+        <img src="https://cdn.discordapp.com/attachments/1254169847496048724/1258216345623990363/image.png?ex=66873cc9&is=6685eb49&hm=c927766431c221ba131786504db2af5c1e6396e18b1df5bd97858b8919932a42&" alt="Webhook Tools Image">
     </div>
-
-    <div class="container" id="actions" style="display: none;">
-        <div class="input-field">
-            <textarea id="message" placeholder="Enter message to send..." class="custom-input"></textarea>
-        </div>
-        <div class="input-field">
-            <button id="spam-button" class="custom-button" onclick="toggleSpam()">Spam Webhook</button>
-            <button class="custom-button delete-button" onclick="confirmDelete()">Delete Webhook</button>
-        </div>
-        <div id="result-container">
-            <div id="result"></div>
-        </div>
-    </div>
-
-    <script>
-        var spamming = false;
-        var spamInterval;
-
-        function proceedToActions() {
-            var webhookUrl = document.getElementById('webhook-url').value.trim();
-            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
-                alert('Please input a valid webhook URL.');
-                return;
-            }
-
-            // Hide input section and show actions section
-            document.getElementById('webhook-input').style.display = 'none';
-            document.getElementById('actions').style.display = 'block';
-        }
-
-        function isValidWebhook(url) {
-            // Simple check for valid URL format
-            return url.startsWith('https://discord.com/api/webhooks/');
-        }
-
-        function toggleSpam() {
-            if (!spamming) {
-                startSpam();
-                document.getElementById('spam-button').textContent = 'Stop Spamming';
-            } else {
-                stopSpam();
-                document.getElementById('spam-button').textContent = 'Spam Webhook';
-            }
-        }
-
-        function startSpam() {
-            spamming = true;
-            var webhookUrl = document.getElementById('webhook-url').value.trim();
-            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
-                displayError('Please input a valid webhook URL.');
-                return;
-            }
-
-            spamInterval = setInterval(function() {
-                sendSpamMessage(webhookUrl);
-            }, 1000); // Change interval as needed (e.g., every second)
-        }
-
-        function stopSpam() {
-            spamming = false;
-            clearInterval(spamInterval);
-        }
-
-        function sendSpamMessage(webhookUrl) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', webhookUrl, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-
-            var payload = {
-                content: document.getElementById('message').value.trim() || 'Spam message here'
-                // You can customize this payload as needed
-            };
-
-            xhr.onload = function() {
-                if (xhr.status === 204) {
-                    displayResult('Message sent successfully.');
-                } else {
-                    displayError('Error: ' + xhr.status);
-                    stopSpam(); // Stop spamming on error
-                    document.getElementById('spam-button').textContent = 'Spam Webhook';
-                }
-            };
-
-            xhr.onerror = function() {
-                displayError('Error sending request.');
-                stopSpam(); // Stop spamming on error
-                document.getElementById('spam-button').textContent = 'Spam Webhook';
-            };
-
-            xhr.send(JSON.stringify(payload));
-        }
-
-        function confirmDelete() {
-            var webhookUrl = document.getElementById('webhook-url').value.trim();
-            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
-                displayError('Please input a valid webhook URL.');
-                return;
-            }
-
-            var confirmDelete = confirm('Are you sure you want to delete the webhook? This action cannot be undone.');
-            if (confirmDelete) {
-                deleteWebhook();
-            }
-        }
-
-        function deleteWebhook() {
-            var webhookUrl = document.getElementById('webhook-url').value.trim();
-            if (!webhookUrl || !isValidWebhook(webhookUrl)) {
-                displayError('Please input a valid webhook URL.');
-                return;
-            }
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('DELETE', webhookUrl, true);
-
-            xhr.onload = function() {
-                if (xhr.status === 204) {
-                    displayResult('Webhook deleted successfully.');
-                } else {
-                    displayError('Error: ' + xhr.status);
-                }
-            };
-
-            xhr.onerror = function() {
-                displayError('Error sending request.');
-            };
-
-            xhr.send();
-        }
-
-        function displayResult(message) {
-            var resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = message;
-            document.getElementById('result-container').style.display = 'block';
-        }
-
-        function displayError(errorMessage) {
-            var resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = errorMessage;
-            document.getElementById('result-container').style.display = 'block';
-        }
-    </script>
 </body>
 </html>
